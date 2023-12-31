@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/inventory")
 @RequiredArgsConstructor
@@ -12,10 +15,9 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-    @GetMapping("/{sku-code}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public String iSInStockUtility(@PathVariable("sku-code") String skuCode) {
-        Boolean isInStock = inventoryService.isInStockValue(skuCode);
-        return isInStock ? "Product is available in stock" : "Product is not available in stock";
+    public Boolean iSInStockUtility(@RequestParam List<String> skuCode) {
+        return !inventoryService.isInStockValue(skuCode);
     }
 }
