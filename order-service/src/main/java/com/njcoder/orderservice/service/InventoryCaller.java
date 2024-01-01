@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class InventoryCaller {
 
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClientBuilder;
 
     public Boolean isProductAvailableInStock(OrderRequest orderRequest) {
         List<String> skuCodes = orderRequest.getOrderLineItemsDtos()
@@ -27,7 +27,7 @@ public class InventoryCaller {
                 .map(OrderLineItemsDto::getSkuCode)
                 .collect(Collectors.toList());
 
-        return webClient.get()
+        return webClientBuilder.build().get()
                 .uri("/api/inventory", uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(Boolean.class)
