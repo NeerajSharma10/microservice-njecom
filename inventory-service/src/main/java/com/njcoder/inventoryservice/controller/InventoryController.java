@@ -20,4 +20,5 @@ public class InventoryController {
     public Boolean iSInStockUtility(@RequestParam List<String> skuCode) {
         return !inventoryService.isInStockValue(skuCode);
     }
+
 }
