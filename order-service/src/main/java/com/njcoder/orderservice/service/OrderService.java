@@ -4,6 +4,7 @@ import com.njcoder.orderservice.repository.OrderRepository;
 import com.njcoder.orderservice.dto.*;
 import com.njcoder.orderservice.model.Order;
 import com.njcoder.orderservice.model.OrderLineItems;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +17,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     
-    private final OrderRepository orderRepository; 
+    private final OrderRepository orderRepository;
+    private final InventoryCaller inventoryCaller;
 
-    public void createOrder(OrderRequest orderRequest) {
+    public Boolean createOrder(OrderRequest orderRequest) {
+        //Before creating the order we need to check whether the skuCode
+        //is present in inventory or not
+        Boolean productAvailableInStock = inventoryCaller.isProductAvailableInStock(orderRequest);
+        if(!productAvailableInStock) return false;
+
         Order order = Order.builder()
                 .orderNumber(String.valueOf(UUID.randomUUID()))
                 .orderLineItemsList(methodForConvertingOrderLineItemsDtoToOrderLineItems(orderRequest.getOrderLineItemsDtos()))
                 .build();
         orderRepository.save(order);
+        return true;
     }
 
     private List<OrderLineItems> methodForConvertingOrderLineItemsDtoToOrderLineItems(List<OrderLineItemsDto> orderLineItemsDtos) {
