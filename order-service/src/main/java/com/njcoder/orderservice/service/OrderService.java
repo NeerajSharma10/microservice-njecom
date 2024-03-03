@@ -1,11 +1,13 @@
 package com.njcoder.orderservice.service;
 
+import com.njcoder.orderservice.event.OrderEventPlaced;
 import com.njcoder.orderservice.repository.OrderRepository;
 import com.njcoder.orderservice.dto.*;
 import com.njcoder.orderservice.model.Order;
 import com.njcoder.orderservice.model.OrderLineItems;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class OrderService {
     
     private final OrderRepository orderRepository;
     private final InventoryCaller inventoryCaller;
+    private final KafkaTemplate<String, OrderEventPlaced> kafkaTemplate;
 
     public Boolean createOrder(OrderRequest orderRequest) {
         //Before creating the order we need to check whether the skuCode
@@ -31,6 +34,7 @@ public class OrderService {
                 .orderLineItemsList(methodForConvertingOrderLineItemsDtoToOrderLineItems(orderRequest.getOrderLineItemsDtos()))
                 .build();
         orderRepository.save(order);
+        kafkaTemplate.send("notification-topic", OrderEventPlaced.builder().orderNumber(order.getOrderNumber()).build());
         return true;
     }
 
