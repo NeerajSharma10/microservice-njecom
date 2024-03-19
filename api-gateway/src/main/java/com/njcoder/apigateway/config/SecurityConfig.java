@@ -33,7 +33,7 @@ public class SecurityConfig {
         serverHttpSecurity.csrf()
                 .disable()
                 .authorizeExchange(exchange ->
-                        exchange.pathMatchers("/eureka/**")
+                        exchange.pathMatchers("/eureka/**", "/v3/api-docs", "/swagger-ui/index.html")
                                 .permitAll()
                                 .anyExchange()
                                 .authenticated())
