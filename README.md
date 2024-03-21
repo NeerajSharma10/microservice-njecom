@@ -1,5 +1,5 @@
 # MicroService_Project
-MicroService Project to learn spring boot
+MicroService Project to learn spring boot related tech stacks.
 
 Commands : 
 1. docker-compose pull
